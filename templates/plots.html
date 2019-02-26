@@ -1,16 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>D3 ScatterPlot</title>
-    <link rel="stylesheet" href="static/style.css">
-</head>
-<body>
-    <div class="scatter-container"></div>
-    
+
+{% extends "layout.html" %}
+{% block content %}
+<h3> Brain Region Specific eQTL in the heterogeneous stock rats </h3>
+    <form class="form-inline my-2 my-lg-0" action="/plots" method="POST">
+      <input name="loc" class="form-control mr-sm-2" type="search" placeholder="chr11:86735385" aria-label="search" value="chr11:86735385">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+
+<div class="scatter-container"></div>
+  
     <script src="https://d3js.org/d3.v5.min.js"></script>
+
+
+   
     <script>
 	
   var graphData = {{ data.chart_data | safe }}
@@ -26,8 +28,8 @@
 const pointColor = '#3585ff'
 
 const margin = {top: 20, right: 15, bottom: 60, left: 70};
-const outerWidth = 800;
-const outerHeight = 600;
+const outerWidth = 700;
+const outerHeight = 500;
 const width = outerWidth - margin.left - margin.right;
 const height = outerHeight - margin.top - margin.bottom;
 
@@ -51,9 +53,24 @@ const canvasChart = container.append('canvas')
 
 const context = canvasChart.node().getContext('2d');
 
-// Init Scales
-const x = d3.scaleLinear().domain([0, d3.max(dataExample, (d) => d[0])]).range([0, width]).nice();
-const y = d3.scaleLinear().domain([0, d3.max(dataExample, (d) => d[1])]).range([height, 0]).nice();
+// Init Scales, original
+
+// Init Scales,modified 
+
+const x = d3.scaleLinear()
+	.domain([
+			d3.min(dataExample, (d) => d[0]),
+			d3.max(dataExample, (d) => d[0])
+			])
+	.range([0, width]).nice();
+
+const y = d3.scaleLinear()
+	.domain([
+			d3.min(dataExample, (d) => d[1]),
+			d3.max(dataExample, (d) => d[1])
+	])
+	.range([height, 0]).nice();
+
 
 // Init Axis
 const xAxis = d3.axisBottom(x);
@@ -72,11 +89,11 @@ svgChart.append('text')
     .attr('x', `-${height/2}`)
     .attr('dy', '-3.5em')
     .attr('transform', 'rotate(-90)')
-    .text('Axis Y');
+    .text('-log10(p)');
 svgChart.append('text')
     .attr('x', `${width/2}`)
     .attr('y', `${height + 40}`)
-    .text('Axis X');
+    .text('bp');
 
 // Draw on canvas
 dataExample.forEach( point => {
@@ -89,11 +106,10 @@ function drawPoint(point) {
     const px = x(point[0]);
     const py = y(point[1]);
 
-    context.arc(px, py, 1.2, 0, 2 * Math.PI,true);
+    context.arc(px, py, 3, 0, 2 * Math.PI,true);
     context.fill();
 }
 	
 	
 	</script>
-</body>
-</html>
+{% endblock %}

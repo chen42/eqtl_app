@@ -15,7 +15,7 @@ def root():
 def eqtl():
     return render_template('eqtl.html')
 
-@app.route("/scatter", methods=['GET', 'POST'])
+@app.route("/plots", methods=['GET', 'POST'])
 def plots():
     if request.method == 'POST':
         term = request.form
