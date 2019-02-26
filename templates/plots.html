@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block content %}
+
+{% for key, value in loc.items() %}
+{{ key }} {{ value }}
+{% endfor %}
+
+<hr>
+
+{% for line  in data %}
+{{ line }} 
+{% endfor %}
+
+
+
+{% endblock %}
+
+

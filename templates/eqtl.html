@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h3> Brain Region Specific eQTL in the heterogeneous stock rats </h3>
+    <form class="form-inline my-2 my-lg-0" action="/plots" method="POST">
+      <input name="loc" class="form-control mr-sm-2" type="search" placeholder="chr11:86735385" aria-label="search" value="chr11:86735385">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+
+{% endblock %}
+
