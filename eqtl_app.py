@@ -15,7 +15,7 @@ def root():
 def eqtl():
     return render_template('eqtl.html')
 
-@app.route("/plots", methods=['GET', 'POST'])
+@app.route("/scatter", methods=['GET', 'POST'])
 def plots():
     if request.method == 'POST':
         term = request.form
@@ -30,7 +30,7 @@ def plots():
         chart_data=dfplot.to_dict(orient='records')
         chart_data=json.dumps(chart_data,indent=2)
         data={'chart_data':chart_data}
-        return render_template("plots.html", data=data, loc=term)
+        return render_template("d3.html", data=data, loc=term)
 if __name__ == '__main__':
     app.run(debug=True)
 
