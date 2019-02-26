@@ -26,11 +26,11 @@ def plots():
         df=pd.read_csv(file, delimiter="\t")
         dfplot=df.iloc[:,3:5]
         dfplot.columns=['bp', 'p']
-        dfplot['logp'] = -np.log10(dfplot['p'])
+        dfplot['p'] = -np.log10(dfplot['p'])
         chart_data=dfplot.to_dict(orient='records')
         chart_data=json.dumps(chart_data,indent=2)
         data={'chart_data':chart_data}
-        return render_template("d3.html", data=data, loc=term)
+        return render_template("plots.html", data=data, loc=term)
 if __name__ == '__main__':
     app.run(debug=True)
 
