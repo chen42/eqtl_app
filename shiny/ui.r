@@ -11,7 +11,8 @@ ui<-fluidPage(
 
 					 column(5, numericInput("win", "Window, Mbp",2 , width=120)),
 					 column(7, selectInput("region", "Brain Region", 
-										   c("Accumbens core" = "AC",
+										   c("All" = "All",
+											 "Accumbens core" = "AC",
 											 "Infralimbic cortex" = "IL",
 											 "Orbitofrontal cortex" = "OF",
 											 "Prelimbic cortex" = "PL",
@@ -21,15 +22,17 @@ ui<-fluidPage(
 					 		)
 			),
 			fluidRow( 
-					 selectInput("geneList", "Limit to Gene",
-								  c("All")
+					 selectInput("geneList", "Focus on Gene",
+								  c("All"),
+								  selected=c("All"),
+
 								 )
 			)
 		),
 		mainPanel(
-#			textOutput("selected_var"),
 			uiOutput("ggvis_ui"),
 			ggvisOutput("ggvis"),
+			#textOutput("selected_var"),
 			helpText("You can drag the lower right corner of the figure to adjust its size.")
 		)
 	)

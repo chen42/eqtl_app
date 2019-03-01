@@ -1,36 +1,47 @@
 library("ggvis")
 library("dplyr")
 
-
+load(file="eqtl.Rdata")
 bp_scale=1e+6
-dat<-read.table(file="eqtl_data.tab", sep="\t",header=F)
-names(dat)<-c("region", "Gene_ID", "chr", "bp", "p")
-dat$logp<- -log10(dat$p)
 dat$bp<-dat$bp/bp_scale
+dat$rn6_start<-dat$rn6_start/bp_scale
 
 server <- function(input, output, session) {
 	dat_f<-reactive({	
-			dat %>% 
-				filter( chr == input$chr & 
-					abs(bp*bp_scale - input$loc) < input$win*1e+6 &  
-					region == input$region
-					) %>% 
-				droplevels()   
+
+		hide<-abs(dat$rn6_start-input$loc/bp_scale)>input$win
+		dat$rn6_start[hide]<-NA
+			if (input$region != "All")  {
+				dat0<- dat %>% 
+					filter( chr == input$chr & 
+						abs(bp*bp_scale - input$loc) < input$win*1e+6 & 
+					 region==input$region) %>% 
+					droplevels() %>%  
+					arrange(bp)
+			} else {
+				dat0<- dat %>% 
+					filter( chr == input$chr & 
+						abs(bp*bp_scale - input$loc) < input$win*1e+6   
+						) %>% 
+					droplevels() %>%  
+					arrange(bp)
+			}	
 	})
 
-	selections <- dat_f %>% select(Gene_ID) %>%  distinct  
-
+	selections <- dat_f %>% select(gene) %>%  distinct  
 	observe({
 		updateSelectInput(session, "geneList", label="Ensembl ID", choices=selections())
 	})
-	mark <- reactive({data.frame(X=input$loc/bp_scale, Y=4.8)})
-	#output$selected_var<-renderText({paste(str(selections)) })
-	ggvis(dat_f, ~bp, ~logp, opacity :=0.3, fill =~Gene_ID  ) %>% 
+
+
+	output$selected_var<-renderText({paste("Showing", str(input$chr)) })
+	ggvis(dat_f, ~bp, ~logp, opacity :=0.5, fill =~gene ) %>% 
+			#layer_points(shape=~cistrans) %>% 
 			layer_points() %>% 
 			layer_lines(y=5.6, stroke:="red" ) %>% 
 			add_axis("x", title="M bp") %>% 
 			add_axis("y", title="-Log10(p)") %>% 
-			layer_points( data = mark, x = ~X, y = ~Y, fill :="black", opacity :=1, shape :="diamond") %>%
+			layer_points( x = ~rn6_start, y = 4.5, opacity :=.6, shape :="diamond") %>%
 			bind_shiny("ggvis", "ggvis_ui")
 }
 
