@@ -34,8 +34,9 @@ ui<-fluidPage(
 #			uiOutput("ggvis_ui"),
 			ggvisOutput("ggvis"),
 #			uiOutput("geneplot"),
-			ggvisOutput("geneplot"),
-			#textOutput("selected_var"),
+			#ggvisOutput("geneplot"),
+			textOutput("selected_var"),
+			plotOutput('manh'),
 			helpText("You can drag the lower right corner of the figure to adjust its size.")
 		)
 	)
