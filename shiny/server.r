@@ -43,6 +43,20 @@ server <- function(input, output, session) {
 			add_axis("y", title="-Log10(p)") %>% 
 			layer_points( x = ~rn6_start, y = 4.5, opacity :=.6, shape :="diamond") %>%
 			bind_shiny("ggvis", "ggvis_ui")
+
+	## gene plots
+	oneGene<-reactive({
+		dat %>%  filter(gene == input$geneList) %>% 
+			droplevels() %>% 
+			arrange(bp)
+	})
+	ggvis(oneGene, ~cumlength, ~logp, opacity :=0.5, fill =~region) %>% 
+		layer_points() %>% 
+		layer_lines(y=5.6, stroke:="red" ) %>% 
+		add_axis("x", title="M bp") %>% 
+		add_axis("y", title="-Log10(p)") %>% 
+		bind_shiny("geneplot", "gene_ui")
+	
 }
 
 			#add_axis("x", title="M bp", properties=axis_props(grid=list(stroke="#00000010"))) %>% 
