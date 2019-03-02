@@ -1,11 +1,10 @@
-library("ggvis")
 ui<-fluidPage(
     titlePanel("Brain eQTL of HS rats"),
 	sidebarLayout(
 		sidebarPanel(
 			width=3,
-			fluidRow( column(5, textInput("chr", "Chr", "chr20", width=120)),
-					  column(7, numericInput("loc", "Location, bp", 43803758, width=120, step=1000 ))
+			fluidRow( column(5, textInput("chr", "Chr", "chr1", width=120)),
+					  column(7, numericInput("loc", "Location, bp", 75030758, width=120, step=1000 ))
 			), 
 			fluidRow(
 
@@ -31,13 +30,13 @@ ui<-fluidPage(
 			)
 		),
 		mainPanel(
-#			uiOutput("ggvis_ui"),
-			ggvisOutput("ggvis"),
-#			uiOutput("geneplot"),
-			#ggvisOutput("geneplot"),
-			textOutput("selected_var"),
-			plotOutput('manh'),
-			helpText("You can drag the lower right corner of the figure to adjust its size.")
+			strong(textOutput("regionText")),
+			plotOutput('region'),
+			strong(textOutput("manhText")),
+			textOutput('legend'),
+			plotOutput('manh')
 		)
 	)
 )
+
+
