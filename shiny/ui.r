@@ -5,11 +5,12 @@ ui<-fluidPage(
 	sidebarLayout(
 		sidebarPanel(
 			width=3,
-			fluidRow( column(5, textInput("chr", "Chr", "chr1", width=120)),
-					  column(7, numericInput("loc", "Location, bp", 75030758, width=120, step=1000 ))
+			fluidRow( column(4, textInput("chr", "Chr", "chr1", width=130)),
+					  column(5, numericInput("loc", "bp", 175030758, width=150, step=1000 )),
+					  column(3, numericInput("win", "±, M bp",2 , width=120))
 			), 
 			fluidRow(
-					 column(5, numericInput("win", "Window, Mbp",2 , width=120)),
+					 column(4, selectInput("cistrans","Type", c("Both"="Both", "cis-"="cis", "trans-"="trans"))),
 					 column(7, selectInput("region", "Brain Region", 
 										   c("All" = "All",
 											 "Accumbens core" = "AC",
@@ -21,19 +22,21 @@ ui<-fluidPage(
 										   )
 					 		)
 			),
-					 hr(), 
 			fluidRow( 
 					 selectInput("geneList", "Abbreviated Manhattan Plot",
 								  c("All"),
 								  selected=c("All"),
-
+								width=250
 								 )
-			)
-		),
+			),
+			hr(), 
+			fluidRow(textInput("query", "Search by gene name", "Not working yet", width=250))
+	 	),
 		mainPanel(
 			strong(textOutput("regionText")),
 			textOutput('legend'),
 			plotlyOutput('first'),
+			hr(),
 			strong(textOutput("manhText")),
 			plotlyOutput('second')
 		)
