@@ -39,12 +39,11 @@ server <- function(input, output, session) {
 		dat0	
 	})
 	## generate list of genes in the plot
-	selections <- dat_f %>% select(gene) %>%  distinct %>% arrange(gene)  
-	type <- dat_f %>% select(cistrans) %>%  distinct %>% arrange(cistrans)  
+	selections <- reactive({dat_f() %>% select(gene) %>%  distinct %>% arrange(gene)})  
+#	type <- reactive({dat_f() %>% select(cistrans) %>%  distinct %>% arrange(cistrans)})
 	observe({
 		updateSelectInput(session, "geneList", label="Ensembl ID", choices=selections())
 #		updateSelectInput(session, "cistrans", label="type", choices=list("Both", type()))
-		 
 	})
 	## plot all SNPs in the selected region 
 	output$first<-renderPlotly({
