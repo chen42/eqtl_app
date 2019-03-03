@@ -1,3 +1,5 @@
+library("plotly")
+
 ui<-fluidPage(
     titlePanel("Brain eQTL of HS rats"),
 	sidebarLayout(
@@ -7,7 +9,6 @@ ui<-fluidPage(
 					  column(7, numericInput("loc", "Location, bp", 75030758, width=120, step=1000 ))
 			), 
 			fluidRow(
-
 					 column(5, numericInput("win", "Window, Mbp",2 , width=120)),
 					 column(7, selectInput("region", "Brain Region", 
 										   c("All" = "All",
@@ -31,10 +32,10 @@ ui<-fluidPage(
 		),
 		mainPanel(
 			strong(textOutput("regionText")),
-			plotOutput('region'),
-			strong(textOutput("manhText")),
 			textOutput('legend'),
-			plotOutput('manh')
+			plotlyOutput('first'),
+			strong(textOutput("manhText")),
+			plotlyOutput('second')
 		)
 	)
 )
