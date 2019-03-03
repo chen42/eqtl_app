@@ -36,7 +36,6 @@ server <- function(input, output, session) {
 				droplevels() %>%  
 				arrange(bp)
 		}
-	
 		dat0	
 	})
 	## generate list of genes in the plot
@@ -59,7 +58,6 @@ server <- function(input, output, session) {
 				  panel.grid.major.x=element_blank(),
 				  panel.grid.minor.x=element_blank()
 				  )
-					
 		ggplotly(p1) %>% config(displayModeBar=F)
 	})
 	type=c("both cis- and trans-eQTL", "cis-eQTL", "trans-eQTL")
@@ -88,10 +86,9 @@ server <- function(input, output, session) {
 			)
 			ggplotly(p) %>% config(displayModeBar=F)
 	})
-	output$manhText<-renderText({paste("Abbr. Manhattan plot for ", input$geneList, " (", symb[input$geneList], "), only showing SNPs with -log10(P)>4.9 (i.e., p < 1.25e-5).", sep="") })  
+	output$manhText<-renderText({paste("Abbr. Manhattan plot for ", symb[input$geneList], " (", input$geneList, "), only showing SNPs with -log10(P) > 4.9 (i.e., p < 1.25e-5).", sep="") })  
 	## search by gene ID and symb
 
 }
 
-#"AC: Accumbens Core, IL: Infralimbic Cortex, PL: Prelimbic Cortex, OF: Orbitofrontal Cortex, LH: Lat. Habenula, 
 
