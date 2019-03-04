@@ -18,13 +18,13 @@ tail(genepos)
 filename="./eqtl_data.tab"
 
 df0<-read.table(file=filename, header=F, sep="\t")
-names(df0)<-c("region","gene","chr","bp","p")
+names(df0)<-c("region","gene","qtl_chr","qtl_bp","qtl_p")
 head(df0)
 length(unique(df0$gene))
 head(df0)
 dim(df0)
-df1<-merge(df0,chrstat,by="chr")
-df1$cumlength<-df1$bp+df1$lengthadj
+df1<-merge(df0,chrstat,by.x="qtl_chr", by.y='chr')
+df1$cumlength<-df1$qtl_bp+df1$lengthadj
 df1<-df1[order(df1$gene,df1$cumlength),]
 head(df1)
 
@@ -32,12 +32,11 @@ all_data<-merge(df1,genepos, by.x="gene", by.y="rn6_gene")
 head(all_data)
 dim(all_data)
 all_data$cistrans<-"inbetween"
-transidx<- abs(all_data$cumlength-all_data$rn6_g_start)>1e+6 | abs(all_data$cumlength-all_data$rn6_g_end) > 1e+6
-cisidx<- abs(all_data$cumlength-all_data$rn6_g_start)<1e+6 | abs(all_data$cumlength-all_data$rn6_g_end) < 1e+6
+transidx<- abs(all_data$cumlength-all_data$rn6_g_start)>5e+6 | abs(all_data$cumlength-all_data$rn6_g_end) > 5e+6
+cisidx<- abs(all_data$cumlength-all_data$rn6_g_start)<5e+6 | abs(all_data$cumlength-all_data$rn6_g_end) < 5e+6
 all_data$cistrans[transidx]<-"trans"
 all_data$cistrans[cisidx]<-"cis"
-all_data$logp<- -log10(all_data$p)
-
+all_data$logp<- -log10(all_data$qtl_p)
 
 temp<-read.table(file="./ensembl_id2symb.tab", header=F)
 symb<-temp[,2]
@@ -45,10 +44,14 @@ names(symb)<-temp[,1]
 head(symb)
 symb["ENSRNOG00000052790"]
 
-
 names(all_data)
-dat<-all_data[,c("gene","chr","region","bp","rn6_start","rn6_g_start", "cistrans", "logp", "cumlength")]
+dat<-all_data[,c("gene","qtl_chr","region","qtl_bp","rn6_chr","rn6_start","rn6_g_start", "cistrans", "logp", "cumlength")]
 save(file="eqtl.Rdata", dat, chrstat, symb)
+
+out<-subset(dat, rn6_chr=='chr12' & abs(qtl_bp-3000)< 200*1e+6)
+dim(out)
+
+range(out$qtl_bp)
 
 hide<-function(){# define peaks?
 	distance<- c(0,df1$cumlength) - c(df1$cumlength,2800000000)

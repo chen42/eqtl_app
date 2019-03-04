@@ -1,13 +1,37 @@
 library("plotly")
 
+
 ui<-fluidPage(
     titlePanel("Brain eQTL of HS rats"),
 	sidebarLayout(
 		sidebarPanel(
 			width=3,
-			fluidRow( column(4, textInput("chr", "Chr", "chr1", width=130)),
+			fluidRow( column(4, selectInput("chr", "Chr", 
+											c("chr1"="chr1",
+											  "chr2"="chr2", 
+											  "chr3"="chr3", 
+											  "chr4"="chr4", 
+											  "chr5"="chr5", 
+											  "chr6"="chr6", 
+											  "chr7"="chr7", 
+											  "chr8"="chr8", 
+											  "chr9"="chr9", 
+											  "chr10"="chr10", 
+											  "chr12"="chr12", 
+											  "chr13"="chr13", 
+											  "chr14"="chr14", 
+											  "chr15"="chr15", 
+											  "chr16"="chr16", 
+											  "chr17"="chr17", 
+											  "chr18"="chr18", 
+											  "chr19"="chr19", 
+											  "chr20"="chr20" 
+											  ),
+											  selected=c("chr1"),
+											  width=100)
+							 ),
 					  column(5, numericInput("loc", "bp", 175030758, width=150, step=1000 )),
-					  column(3, numericInput("win", "±, M bp",2 , width=120))
+					  column(3, numericInput("win", "± M bp",2 , width=120))
 			), 
 			fluidRow(
 					 column(4, selectInput("cistrans","Type", c("Both"="Both", "cis-"="cis", "trans-"="trans"))),

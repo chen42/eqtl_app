@@ -4,9 +4,9 @@ library("plotly")
 
 load(file="eqtl.Rdata")
 bp_scale=1e+6
-dat$bp<-dat$bp/bp_scale
+dat$qtl_bp<-dat$qtl_bp/bp_scale
 dat$rn6_start<-dat$rn6_start/bp_scale
-genomesize=sum(chrstat$length[1:21])
+genomesize=sum( as.numeric(chrstat$length[1:21]))
 regions<-c("all five brain regions", "accumbene core", "lateral habenula", "prelimbic cortex", "infralimbic cortex", "orbitofrontal cortex")
 names(regions)<-c("All", "AC", "LH", "PL", "IL", "OF")
 
@@ -18,37 +18,49 @@ server <- function(input, output, session) {
 		dat$rn6_start[hide]<-NA
 		## filter by chr and location
 		dat0<- dat %>% 
-				filter( chr == input$chr & 
-					abs(bp*bp_scale - input$loc) < input$win*1e+6   
+				filter( rn6_chr == input$chr & qtl_chr==input$chr & 
+					abs(qtl_bp*bp_scale - input$loc) < input$win*1e+6   
 					) %>% 
 				droplevels() %>%  
-				arrange(bp)
+				arrange(qtl_bp)
 		# filter by brain region	
 		if (input$region != "All")  {
 			dat0<- dat0 %>% 
 				filter(region==input$region) %>% 
 				droplevels() %>%  
-				arrange(bp)
+				arrange(qtl_bp)
 		}
 		if (input$cistrans != "Both")  {
 			dat0<- dat0 %>% 
 				filter(cistrans==input$cistrans) %>% 
 				droplevels() %>%  
-				arrange(bp)
+				arrange(qtl_bp)
 		}
 		dat0	
+		#browser()
 	})
 	## generate list of genes in the plot
 	selections <- reactive({dat_f() %>% select(gene) %>%  distinct %>% arrange(gene)})  
 #	type <- reactive({dat_f() %>% select(cistrans) %>%  distinct %>% arrange(cistrans)})
+	dotsize <- reactive({
+		dot_cnt<-dim(dat_f())[1]
+		if (dot_cnt > 500){
+			size=0.6
+		} else if  (dot_cnt > 100) { 
+			size=1
+		} else {
+			size =2	
+		}
+		size
+	})  
 	observe({
 		updateSelectInput(session, "geneList", label="Ensembl ID", choices=selections())
 #		updateSelectInput(session, "cistrans", label="type", choices=list("Both", type()))
 	})
 	## plot all SNPs in the selected region 
 	output$first<-renderPlotly({
-		p1<-ggplot(dat_f(), aes(x=bp, y=logp, color=gene, shape=cistrans)) +
-			geom_point(alpha=0.6, size=2)   +
+		p1<-ggplot(dat_f(), aes(x=qtl_bp, y=logp, color=gene, shape=cistrans)) +
+			geom_point(alpha=0.6, size=dotsize())   +
 			scale_x_continuous(name="M bp") +
 			scale_y_continuous(name="-Log10(P)") +
 			geom_point(aes(x=rn6_start, y=4.5), shape=4, size=2) + 
@@ -63,11 +75,11 @@ server <- function(input, output, session) {
 	names(type)<-c("Both","cis","trans")
 	## Manhattan plot for one gene, all brain regions
 	output$regionText<-renderText({paste("Focusing on ", input$chr, ", ", round(input$loc/bp_scale, 2) , " ± ", input$win, " M bp. Displaying ", type[input$cistrans], " in ", regions[input$region], ".", sep="" ) })
-	output$legend<-renderText({paste("Only showing SNPs with -log10(P) > 4.9 (i.e., p < 1.25e-5). Colors: genes; Shape: cis- vs trans-;  Hovering mouse over the points for more info. X: location of the gene", sep="") })
+	output$legend<-renderText({paste("Only showing SNPs with -log10(P) > 4.9 (i.e., p < 1.25e-5). Colors: genes; Shape: cis- vs trans-;  Hovering mouse over the points for more info. X: location of the gene",  sep="") })
 	dat_m<-reactive({ 
 		dat0<- dat %>%  filter(gene == input$geneList) %>% 
 		droplevels()  %>% 
-		arrange(bp)
+		arrange(qtl_bp)
 	})
 	output$second<-renderPlotly({
 		p<-ggplot(dat_m(), aes(x=cumlength, y=logp, color=region)) + 
