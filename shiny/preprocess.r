@@ -38,20 +38,27 @@ all_data$cistrans[transidx]<-"trans"
 all_data$cistrans[cisidx]<-"cis"
 all_data$logp<- -log10(all_data$qtl_p)
 
+names(all_data)
+dat<-all_data[,c("gene","qtl_chr","region","qtl_bp","rn6_chr","rn6_start","rn6_g_start", "cistrans", "logp", "cumlength")]
+
+# gene symbl
 temp<-read.table(file="./ensembl_id2symb.tab", header=F)
 symb<-temp[,2]
 names(symb)<-temp[,1]
 head(symb)
 symb["ENSRNOG00000052790"]
 
-names(all_data)
-dat<-all_data[,c("gene","qtl_chr","region","qtl_bp","rn6_chr","rn6_start","rn6_g_start", "cistrans", "logp", "cumlength")]
-save(file="eqtl.Rdata", dat, chrstat, symb)
+# gaps
+gaps<-read.table(file="./gap.txt", header=F)[,c(2,3,4)]
+names(gaps)<-c("gap_chr","gap_start","gap_end")
+head(gaps)
 
-out<-subset(dat, rn6_chr=='chr12' & abs(qtl_bp-3000)< 200*1e+6)
-dim(out)
+svs<-read.table(file="./svs.tab", header=F)
+names(svs)<-c("sv_set","sv_chr","sv_start","sv_end", "sv_score", "sv_type")
+head(svs)
 
-range(out$qtl_bp)
+save(file="eqtl.Rdata", dat, chrstat, symb, gaps, svs)
+
 
 hide<-function(){# define peaks?
 	distance<- c(0,df1$cumlength) - c(df1$cumlength,2800000000)

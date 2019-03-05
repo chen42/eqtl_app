@@ -1,12 +1,11 @@
 library("plotly")
 
-
 ui<-fluidPage(
     titlePanel("Brain eQTL of HS rats"),
 	sidebarLayout(
 		sidebarPanel(
 			width=3,
-			fluidRow( column(4, selectInput("chr", "Chr", 
+			fluidRow(column(3, offset=0, style='padding:5px;',  selectInput("chr", "Chr", 
 											c("chr1"="chr1",
 											  "chr2"="chr2", 
 											  "chr3"="chr3", 
@@ -17,6 +16,7 @@ ui<-fluidPage(
 											  "chr8"="chr8", 
 											  "chr9"="chr9", 
 											  "chr10"="chr10", 
+											  "chr11"="chr11", 
 											  "chr12"="chr12", 
 											  "chr13"="chr13", 
 											  "chr14"="chr14", 
@@ -28,14 +28,14 @@ ui<-fluidPage(
 											  "chr20"="chr20" 
 											  ),
 											  selected=c("chr1"),
-											  width=100)
+											  width=80)
 							 ),
-					  column(5, numericInput("loc", "bp", 175030758, width=150, step=1000 )),
-					  column(3, numericInput("win", "± M bp",2 , width=120))
+					column(5, offset=0, style='padding:5px;', numericInput("loc", "bp", 175030758, width=150, step=1000 )),
+					column(3, offset=0, style='padding:5px;', numericInput("win", "± M bp",2 , width=60))
 			), 
 			fluidRow(
-					 column(4, selectInput("cistrans","Type", c("Both"="Both", "cis-"="cis", "trans-"="trans"))),
-					 column(7, selectInput("region", "Brain Region", 
+					column(4, offset=0, style='padding:5px;', selectInput("cistrans","Type", c("Both"="Both", "cis-"="cis", "trans-"="trans"))),
+					column(6, offset=0, style='padding:5px;', selectInput("region", "Brain Region", 
 										   c("All" = "All",
 											 "Accumbens core" = "AC",
 											 "Infralimbic cortex" = "IL",
@@ -47,7 +47,7 @@ ui<-fluidPage(
 					 		)
 			),
 			fluidRow( 
-					 selectInput("geneList", "Abbreviated Manhattan Plot",
+					selectInput("geneList", "Abbreviated Manhattan Plot",
 								  c("All"),
 								  selected=c("All"),
 								width=250
@@ -55,7 +55,7 @@ ui<-fluidPage(
 			),
 			hr(), 
 			fluidRow(textInput("query", "Search by gene name", "Not working yet", width=250))
-	 	),
+		),
 		mainPanel(
 			strong(textOutput("regionText")),
 			textOutput('legend'),
