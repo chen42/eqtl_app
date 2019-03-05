@@ -48,16 +48,24 @@ names(symb)<-temp[,1]
 head(symb)
 symb["ENSRNOG00000052790"]
 
+# gene model
+gmodel<-read.table(file="./ensembl_gene_model.tab", header=F)
+names(gmodel)<-c("gm_chr","gm_type","gm_start","gm_end","gene")
+
 # gaps
 gaps<-read.table(file="./gap.txt", header=F)[,c(2,3,4)]
 names(gaps)<-c("gap_chr","gap_start","gap_end")
 head(gaps)
 
+# svs
 svs<-read.table(file="./svs.tab", header=F)
 names(svs)<-c("sv_set","sv_chr","sv_start","sv_end", "sv_score", "sv_type")
 head(svs)
 
-save(file="eqtl.Rdata", dat, chrstat, symb, gaps, svs)
+
+
+
+save(file="eqtl.Rdata", dat, chrstat, symb, gaps, svs, gmodel)
 
 
 hide<-function(){# define peaks?
