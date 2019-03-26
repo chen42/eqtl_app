@@ -96,7 +96,6 @@ server <- function(input, output, session) {
 			shp=c(21,24)
 		}
 		p1<-ggplot()+
-#		dat_f(), aes(x=qtl_bp, y=logp, color=gene, shape=cistrans)) +
 			geom_point(data=dat_f(), aes(x=qtl_bp, y=logp, fill=gene, shape=cistrans), alpha=1, size=dotsize()) +
 			scale_shape_manual(values=shp)+
 			scale_x_continuous(name="Mb") +
@@ -108,16 +107,17 @@ server <- function(input, output, session) {
 				  panel.grid.minor.x=element_blank()
 				  )
 			if (dim(svs_f())[1]) {	
-				p1<-p1+geom_segment(data=svs_f(), aes(x=sv_start, xend=sv_end, y=4, yend=4, color=sv_type, info1=sv_score), size=3)
+				p1<-p1+geom_segment(data=svs_f(), aes(x=sv_start, xend=sv_end, y=2.5, yend=2.5, color=sv_type, info1=sv_score), size=3)+annotate("text", x=min(dat_f()$qtl_bp)-0.2, y=2.5,label= "SV")
 			}
 			if (dim(gaps_f())[1]) {	
-				p1<-p1+geom_segment(data=gaps_f(), aes(x=gap_start, xend=gap_end, y=4.25, yend=4.25), size=3)
+				p1<-p1+geom_segment(data=gaps_f(), aes(x=gap_start, xend=gap_end, y=3, yend=3), size=3) +annotate("text", x=min(dat_f()$qtl_bp)-0.2, y=3,label= "Gap")
 			}
 			if (dim(gene_f())[1]) {	
-				p1<-p1+geom_segment(data=gene_f(), aes(x=gm_start, xend=gm_end, y=4.5, yend=4.5, color=gene), size=1)
+				p1<-p1+geom_segment(data=gene_f(), aes(x=gm_start, xend=gm_end, y=3.5, yend=3.5, color=gene), size=1) +annotate("text", x=min(dat_f()$qtl_bp)-0.2, y=3.5,label= "Gene")
+
 			}
 			if (dim(exon_f())[1]) {	
-				p1<-p1+geom_segment(data=exon_f(), aes(x=gm_start, xend=gm_end, y=4.5, yend=4.5, color=gene), size=3)
+				p1<-p1+geom_segment(data=exon_f(), aes(x=gm_start, xend=gm_end, y=3.5, yend=3.5, color=gene), size=3)
 			}
 		ggplotly(p1) %>% config(displayModeBar=T)
 	})
@@ -125,7 +125,7 @@ server <- function(input, output, session) {
 	names(type)<-c("Both","cis","trans")
 	## Manhattan plot for one gene, all brain regions
 	output$regionText<-renderText({paste("Focusing on ", input$chr, ", ", round(input$loc/bp_scale, 2) , " ± ", input$win, " Mb. Displaying ", type[input$cistrans], " in ", regions[input$region], ".", sep="" ) })
-	output$legend<-renderText({paste("Only showing SNPs with -log10(P) > 4.9 (i.e., p < 1.25e-5). Colors: genes; Shape: cis- vs trans-;  Hovering mouse over the points for more info.", sep="") })
+	output$legend<-renderText({paste("Only showing SNPs with -log10(P) > 4.9 (i.e., p < 1.25e-5). Colors: genes; Shape: cis- vs trans-", sep="") })
 	dat_m<-reactive({ 
 		dat0<- dat %>%  filter(gene == input$geneList) %>% 
 		droplevels()  %>% 

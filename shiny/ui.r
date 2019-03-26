@@ -30,7 +30,7 @@ ui<-fluidPage(
 											  selected=c("chr1"),
 											  width=80)
 							 ),
-					column(5, offset=0, style='padding:5px;', numericInput("loc", "bp", 175030758, width=150, step=1000 )),
+					column(5, offset=0, style='padding:5px;', numericInput("loc", "bp", 175030758, width=150, step=10000 )),
 					column(3, offset=0, style='padding:5px;', numericInput("win", "± M bp",2 , width=60))
 			), 
 			fluidRow(

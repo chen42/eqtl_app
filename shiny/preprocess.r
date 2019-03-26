@@ -16,7 +16,6 @@ names(genepos)<-paste("rn6",names(genepos),sep="_")
 tail(genepos)
 
 filename="./eqtl_data.tab"
-
 df0<-read.table(file=filename, header=F, sep="\t")
 names(df0)<-c("region","gene","qtl_chr","qtl_bp","qtl_p")
 head(df0)
@@ -28,16 +27,51 @@ df1$cumlength<-df1$qtl_bp+df1$lengthadj
 df1<-df1[order(df1$gene,df1$cumlength),]
 head(df1)
 
+
+
 all_data<-merge(df1,genepos, by.x="gene", by.y="rn6_gene")
 head(all_data)
 dim(all_data)
 all_data$cistrans<-"inbetween"
-transidx<- abs(all_data$cumlength-all_data$rn6_g_start)>5e+6 | abs(all_data$cumlength-all_data$rn6_g_end) > 5e+6
-cisidx<- abs(all_data$cumlength-all_data$rn6_g_start)<5e+6 | abs(all_data$cumlength-all_data$rn6_g_end) < 5e+6
+transidx<- abs(all_data$cumlength-all_data$rn6_g_start)>1e+6 | abs(all_data$cumlength-all_data$rn6_g_end) > 1e+6
+cisidx<- abs(all_data$cumlength-all_data$rn6_g_start)<1e+6 | abs(all_data$cumlength-all_data$rn6_g_end) < 1e+6
 all_data$cistrans[transidx]<-"trans"
 all_data$cistrans[cisidx]<-"cis"
 all_data$logp<- -log10(all_data$qtl_p)
+transeqtl<-subset(all_data, logp>4.9 & cistrans=="trans") # threshold is 5.6 but keep a little more data points for the plot
+cisCandidates<-subset(all_data, cistrans=="cis")
 
+
+#fdr from another script (fdr.r)
+fdr5pct<-c(0.00481,0.00541,0.00594,0.00549,0.00443)
+names(fdr5pct)<-c("AC","IL","PL","OF","LH")
+
+
+# for cis-, correct p-values
+eigenmt<-read.table(file="./fpkm_eigenmt_hits.txt", header=F,sep="\t")
+names(eigenmt)<-c("region","chr_loc","gene","p","padj","tests")
+head(eigenmt)
+# eigenMT calculates the Meff (effective multi-test) for each gene, then do Bonferroni. Here I am recapture this tests and apply this to all SNPs within the cis- of each gene. The tests are slightly different (with one or two) between different brains regions. So I am taking the mean
+gene_testcounts<-aggregate(tests~gene, FUN=function(x) round(mean(x),0), data=eigenmt)
+ciseqtl0<-merge(cisCandidates,gene_testcounts, by.x="gene", by.y="gene")
+ciseqtl0$qtl_p<-ciseqtl0$qtl_p*ciseqtl0$tests
+ciseqtl0<-ciseqtl0[,1:16]
+names(ciseqtl0)
+# keep only genes pass fdr0.05
+ciseqtl<-NULL
+for (i in 1:5){
+	reg<-names(fdr5pct)[i] 
+	reg_eqtl<-subset(ciseqtl0,region==reg)
+	min_p<-aggregate(qtl_p~gene, FUN=min,data=reg_eqtl)
+	pass_fdr<-min_p$qtl_p<fdr5pct[reg]
+	names(reg_eqtl)
+	names(min_p)
+	ciseqtl<-rbind(ciseqtl,subset(reg_eqtl, gene %in% min_p[pass_fdr, "gene"]))
+}
+dim(ciseqtl)
+dim(ciseqtl0)
+
+all_data<-rbind(ciseqtl,transeqtl)
 names(all_data)
 dat<-all_data[,c("gene","qtl_chr","region","qtl_bp","rn6_chr","rn6_start","rn6_g_start", "cistrans", "logp", "cumlength")]
 
@@ -63,9 +97,7 @@ names(svs)<-c("sv_set","sv_chr","sv_start","sv_end", "sv_score", "sv_type")
 head(svs)
 
 
-
-
-save(file="eqtl.Rdata", dat, chrstat, symb, gaps, svs, gmodel)
+save(file="eqtl.Rdata", dat, chrstat, symb, gaps, svs, gmodel, fdr5pct)
 
 
 hide<-function(){# define peaks?
