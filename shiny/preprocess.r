@@ -15,37 +15,36 @@ genepos<-genepos[,c("chr","gene","g_start","g_end", "start", "end")]
 names(genepos)<-paste("rn6",names(genepos),sep="_")
 tail(genepos)
 
+# for trans, p-values cut at -logp>4.9
 filename="./eqtl_data.tab"
 df0<-read.table(file=filename, header=F, sep="\t")
 names(df0)<-c("region","gene","qtl_chr","qtl_bp","qtl_p")
-head(df0)
-length(unique(df0$gene))
-head(df0)
-dim(df0)
 df1<-merge(df0,chrstat,by.x="qtl_chr", by.y='chr')
 df1$cumlength<-df1$qtl_bp+df1$lengthadj
 df1<-df1[order(df1$gene,df1$cumlength),]
-head(df1)
+trans<-merge(df1,genepos, by.x="gene", by.y="rn6_gene")
+trans$cistrans<-"inbetween"
+transidx<- abs(trans$cumlength-trans$rn6_g_start)>1e+6 | abs(trans$cumlength-trans$rn6_g_end) > 1e+6
+trans$cistrans[transidx]<-"trans"
+#cisidx<- abs(trans$cumlength-trans$rn6_g_start)<1e+6 | abs(trans$cumlength-trans$rn6_g_end) < 1e+6
+#trans$cistrans[cisidx]<-"cis"
+trans$logp<- -log10(trans$qtl_p)
+transeqtl<-subset(trans, logp>4.9 & cistrans=="trans") # threshold is 5.6 but keep a little more data points for the plot
+dim(transeqtl)
+# 348292 16
 
-
-
-all_data<-merge(df1,genepos, by.x="gene", by.y="rn6_gene")
-head(all_data)
-dim(all_data)
-all_data$cistrans<-"inbetween"
-transidx<- abs(all_data$cumlength-all_data$rn6_g_start)>1e+6 | abs(all_data$cumlength-all_data$rn6_g_end) > 1e+6
-cisidx<- abs(all_data$cumlength-all_data$rn6_g_start)<1e+6 | abs(all_data$cumlength-all_data$rn6_g_end) < 1e+6
-all_data$cistrans[transidx]<-"trans"
-all_data$cistrans[cisidx]<-"cis"
-all_data$logp<- -log10(all_data$qtl_p)
-transeqtl<-subset(all_data, logp>4.9 & cistrans=="trans") # threshold is 5.6 but keep a little more data points for the plot
-cisCandidates<-subset(all_data, cistrans=="cis")
-
-
-#fdr from another script (fdr.r)
-fdr5pct<-c(0.00481,0.00541,0.00594,0.00549,0.00443)
-names(fdr5pct)<-c("AC","IL","PL","OF","LH")
-
+## for cis 
+filename="./five_regions_cis_candidates.tab"
+df0<-read.table(file=filename, header=F, sep="\t")
+names(df0)<-c("region","gene","qtl_chr","qtl_bp","qtl_p")
+head(df0)
+head(chrstat)
+df1<-merge(df0,chrstat,by.x="qtl_chr", by.y='chr')
+df1$cumlength<-df1$qtl_bp+df1$lengthadj
+df1<-df1[order(df1$gene,df1$cumlength),]
+cisCandidates<-merge(df1,genepos, by.x="gene", by.y="rn6_gene")
+cisCandidates$cistrans<-"cis"
+cisCandidates$logp<- -1 * log10(cisCandidates$qtl_p)
 
 # for cis-, correct p-values
 eigenmt<-read.table(file="./fpkm_eigenmt_hits.txt", header=F,sep="\t")
@@ -55,25 +54,29 @@ head(eigenmt)
 gene_testcounts<-aggregate(tests~gene, FUN=function(x) round(mean(x),0), data=eigenmt)
 ciseqtl0<-merge(cisCandidates,gene_testcounts, by.x="gene", by.y="gene")
 ciseqtl0$qtl_p<-ciseqtl0$qtl_p*ciseqtl0$tests
-ciseqtl0<-ciseqtl0[,1:16]
-names(ciseqtl0)
-# keep only genes pass fdr0.05
-ciseqtl<-NULL
-for (i in 1:5){
-	reg<-names(fdr5pct)[i] 
-	reg_eqtl<-subset(ciseqtl0,region==reg)
-	min_p<-aggregate(qtl_p~gene, FUN=min,data=reg_eqtl)
-	pass_fdr<-min_p$qtl_p<fdr5pct[reg]
-	names(reg_eqtl)
-	names(min_p)
-	ciseqtl<-rbind(ciseqtl,subset(reg_eqtl, gene %in% min_p[pass_fdr, "gene"]))
-}
-dim(ciseqtl)
-dim(ciseqtl0)
+#ciseqtl0<-ciseqtl0[,1:16]
+#names(ciseqtl0)
+#names(transeqtl)
+min_p<-aggregate(qtl_p~gene+region, FUN=min,data=ciseqtl0)
+min_p_sig<-subset(min_p, qtl_p<0.05)
+names(min_p_sig)[3]<-"min_p"
+head(min_p)
+ciseqtl<-merge(ciseqtl0, min_p_sig, by.x=c("gene","region"), by.y=c("gene","region"))[,1:16]
+#dim(ciseqtl0)
+#dim(ciseqtl_with_min_p)
+#head(ciseqtl_with_min_p)
+#tail(ciseqtl_with_min_p,10)
 
 all_data<-rbind(ciseqtl,transeqtl)
 names(all_data)
 dat<-all_data[,c("gene","qtl_chr","region","qtl_bp","rn6_chr","rn6_start","rn6_g_start", "cistrans", "logp", "cumlength")]
+
+#fdr from another script (fdr.r)
+fdr5pct<-c(0.00481,0.00541,0.00594,0.00549,0.00443)
+names(fdr5pct)<-c("AC","IL","PL","OF","LH")
+
+
+
 
 # gene symbl
 temp<-read.table(file="./ensembl_id2symb.tab", header=F)
@@ -96,9 +99,7 @@ svs<-read.table(file="./svs.tab", header=F)
 names(svs)<-c("sv_set","sv_chr","sv_start","sv_end", "sv_score", "sv_type")
 head(svs)
 
-
 save(file="eqtl.Rdata", dat, chrstat, symb, gaps, svs, gmodel, fdr5pct)
-
 
 hide<-function(){# define peaks?
 	distance<- c(0,df1$cumlength) - c(df1$cumlength,2800000000)
