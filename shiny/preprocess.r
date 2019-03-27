@@ -34,7 +34,7 @@ dim(transeqtl)
 # 348292 16
 
 ## for cis 
-filename="./five_regions_cis_candidates.tab"
+filename="./five_regions_cis_filtered.tab"
 df0<-read.table(file=filename, header=F, sep="\t")
 names(df0)<-c("region","gene","qtl_chr","qtl_bp","qtl_p")
 head(df0)
