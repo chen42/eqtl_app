@@ -2,6 +2,9 @@ library("plotly")
 
 ui<-fluidPage(
     titlePanel("Brain eQTL of HS rats"),
+	tags$head(
+    	tags$style(HTML("hr {border-top: 2px solid #4c3f34;}"))
+  	),
 	sidebarLayout(
 		sidebarPanel(
 			width=3,
@@ -30,7 +33,7 @@ ui<-fluidPage(
 											  selected=c("chr1"),
 											  width=80)
 							 ),
-					column(5, offset=0, style='padding:5px;', numericInput("loc", "bp", 175030758, width=150, step=10000 )),
+					column(5, offset=0, style='padding:5px;', numericInput("loc", "bp", 175030758, width=150, step=100000 )),
 					column(3, offset=0, style='padding:5px;', numericInput("win", "± M bp",2 , width=60))
 			), 
 			fluidRow(
@@ -46,16 +49,15 @@ ui<-fluidPage(
 										   )
 					 		)
 			),
-			fluidRow( 
-					selectInput("geneList", "Abbreviated Manhattan Plot",
-								  c("All"),
-								  selected=c("All"),
-								width=250
-								 )
-			),
 			hr(), 
-			fluidRow(textInput("query", "Search by gene name", "Not working yet", width=250))
+			fluidRow( 
+					strong("Abbreviated Manhattan Plot for genes in the selected region"),
+					selectInput("geneList", "", c("All"), selected=c("All"), width=250)
+			),
+			fluidRow(textInput("geneSymb", "Search by gene symbol, e.g. Adhfe1, Ncald", "", width=250)),
+			actionButton("submitButton","submit")
 		),
+		
 		mainPanel(
 			strong(textOutput("regionText")),
 			textOutput('legend'),
