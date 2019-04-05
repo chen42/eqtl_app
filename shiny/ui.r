@@ -30,14 +30,14 @@ ui<-fluidPage(
 											  "chr19"="chr19", 
 											  "chr20"="chr20" 
 											  ),
-											  selected=c("chr1"),
+											  selected=c("chr2"),
 											  width=80)
 							 ),
-					column(5, offset=0, style='padding:5px;', numericInput("loc", "bp", 175030758, width=150, step=100000 )),
+					column(5, offset=0, style='padding:5px;', numericInput("loc", "Mbp", 29.3, width=150, step=1)),
 					column(3, offset=0, style='padding:5px;', numericInput("win", "± M bp",2 , width=60))
 			), 
 			fluidRow(
-					column(4, offset=0, style='padding:5px;', selectInput("cistrans","Type", c("Both"="Both", "cis-"="cis", "trans-"="trans"))),
+					column(4, offset=0, style='padding:5px;', selectInput("cistrans","Type", c("cis-"="cis", "trans-"="trans", "Both"="Both" ))),
 					column(6, offset=0, style='padding:5px;', selectInput("region", "Brain Region", 
 										   c("All" = "All",
 											 "Accumbens core" = "AC",
@@ -54,7 +54,7 @@ ui<-fluidPage(
 					strong("Abbreviated Manhattan Plot for genes in the selected region"),
 					selectInput("geneList", "", c("All"), selected=c("All"), width=250)
 			),
-			fluidRow(textInput("geneSymb", "Search by gene symbol, e.g. Adhfe1, Ncald", "", width=250)),
+			fluidRow(textInput("geneSymb", "Search by gene symbol, e.g. Gfm2, Ncald", "", width=250)),
 			actionButton("submitButton","submit")
 		),
 		

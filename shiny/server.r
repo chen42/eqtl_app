@@ -21,12 +21,12 @@ server <- function(input, output, session) {
 	font_size=3 # labels in the figures
 	dat_f<-reactive({	
 		## hide some extra points
-		hide<-abs(dat$rn6_start-input$loc/bp_scale)>input$win
+		hide<-abs(dat$rn6_start-input$loc*bp_scale)>input$win
 		dat$rn6_start[hide]<-NA
 		## filter by chr and location
 		dat0<- dat %>% 
 				filter( rn6_chr == input$chr & qtl_chr==input$chr & 
-					abs(qtl_bp*bp_scale - input$loc) < input$win*1e+6   
+					abs(qtl_bp - input$loc) < input$win  
 					) %>% 
 				droplevels() %>%  
 				arrange(qtl_bp)
@@ -76,11 +76,11 @@ server <- function(input, output, session) {
 	dotsize <- reactive({
 		dot_cnt<-dim(dat_f())[1]
 		if (dot_cnt > 500){
-			size=2.3
+			size=2.1
 		} else if  (dot_cnt > 100) { 
-			size=3
+			size=2.5
 		} else {
-			size=4	
+			size=3	
 		}
 		size
 	})  
@@ -136,8 +136,9 @@ server <- function(input, output, session) {
 	type=c("both cis- and trans-eQTL", "cis-eQTL", "trans-eQTL")
 	names(type)<-c("Both","cis","trans")
 	## Manhattan plot for one gene, all brain regions
-	output$regionText<-renderText({paste("Focusing on ", input$chr, ", ", round(input$loc/bp_scale, 2) , " ± ", input$win, " Mb. Displaying ", type[input$cistrans], " in ", regions[input$region], ".", sep="" ) })
-	output$legend<-renderText({paste("Only showing SNPs with -log10(P) > 4.9 (i.e., p < 1.25e-5). Colors: genes; Shape: cis- vs trans-", sep="") })
+	output$regionText<-renderText({paste("Focusing on ", input$chr, ", ", round(input$loc, 2) , " ± ", input$win, " Mb. Displaying ", type[input$cistrans], " in ", regions[input$region], ".", sep="" ) })
+	output$legend<-renderText({paste("Colors: genes; Shape: cis- vs trans-", sep="") })
+# Only showing SNPs with -log10(P) > 4.9 (i.e., p < 1.25e-5). 
 	dat_m<-eventReactive(input$submitButton, { 
 		if (nchar(input$geneSymb) >1) {
 			idx<-toupper(input$geneSymb) == toupper(symb)
