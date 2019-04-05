@@ -33,8 +33,8 @@ ui<-fluidPage(
 											  selected=c("chr2"),
 											  width=80)
 							 ),
-					column(5, offset=0, style='padding:5px;', numericInput("loc", "Mbp", 29.3, width=150, step=1)),
-					column(3, offset=0, style='padding:5px;', numericInput("win", "± M bp",2 , width=60))
+					column(5, offset=0, style='padding:5px;', numericInput("loc", "M bp", 25.5, width=150, step=1)),
+					column(3, offset=0, style='padding:5px;', numericInput("win", "± M bp",3 , width=60))
 			), 
 			fluidRow(
 					column(4, offset=0, style='padding:5px;', selectInput("cistrans","Type", c("cis-"="cis", "trans-"="trans", "Both"="Both" ))),
