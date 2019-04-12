@@ -140,19 +140,29 @@ server <- function(input, output, session) {
 	output$legend<-renderText({paste("Colors: genes; Shape: cis- vs trans-", sep="") })
 # Only showing SNPs with -log10(P) > 4.9 (i.e., p < 1.25e-5). 
 	dat_m<-eventReactive(input$submitButton, { 
+		# if there is text in the gene symb text box
 		if (nchar(input$geneSymb) >1) {
 			idx<-toupper(input$geneSymb) == toupper(symb)
+			# has a unique hit 
 			if (sum(idx)==1){
 				geneID=names(symb[idx])
 				dat0<-dat %>% 
 				filter(gene==geneID) %>%
 				droplevels() %>%  
 				arrange(qtl_bp)
+			} else {
+				output$manhText<-renderText({paste("Gene ", input$geneSymb, "not found")})  
+				return()
 			}
+		# otherwise search for the gene selected in the dropdown menu
 		} else {
 			dat0<- dat %>%  filter(gene == input$geneList) %>% 
 			droplevels()  %>% 
 			arrange(qtl_bp)
+		}
+		if (dim(dat0)[1] ==0){
+			output$manhText<-renderText({paste("Gene ", input$geneSymb, "has no eQTL")})  
+			return()
 		}
 		updateTextInput(session, "geneSymb",  value="")
 		dat0
