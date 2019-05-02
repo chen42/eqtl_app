@@ -1,9 +1,0 @@
-.scatter-container {
-    margin: auto;
-    width: 800px;
-    height: 600px;
-}
-
-.svg-plot, .canvas-plot {
-    position: absolute;
-}
