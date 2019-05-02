@@ -31,7 +31,7 @@ trans$cistrans[transidx]<-"trans"
 trans$logp<- -log10(trans$qtl_p)
 transeqtl<-subset(trans, logp>4.9 & cistrans=="trans") # threshold is 5.6 but keep a little more data points for the plot
 dim(transeqtl)
-# 348292 16
+# 354300 16
 
 ## for cis 
 filename="./five_regions_cis_filtered.tab"
@@ -62,10 +62,9 @@ min_p_sig<-subset(min_p, qtl_p<0.05)
 names(min_p_sig)[3]<-"min_p"
 head(min_p)
 ciseqtl<-merge(ciseqtl0, min_p_sig, by.x=c("gene","region"), by.y=c("gene","region"))[,1:16]
-#dim(ciseqtl0)
-#dim(ciseqtl_with_min_p)
-#head(ciseqtl_with_min_p)
-#tail(ciseqtl_with_min_p,10)
+dim(ciseqtl)
+#94100 16
+
 
 all_data<-rbind(ciseqtl,transeqtl)
 names(all_data)
